@@ -1,20 +1,6 @@
 template <typename T>
 LinkedList<T>::LinkedList()
-: head(nullptr) { }
-
-template <typename T>
-LinkedList<T>::LinkedList(const LinkedList<T>& copyObj) {
-    copy(copyObj);
-}
-
-template <typename T>
-LinkedList<T>& LinkedList<T>::operator=(const LinkedList<T>& rightObj) {
-    if (this != &rightObj) {
-        clear();
-        copy(rightObj);
-    }
-    return *this;
-}
+: head(nullptr) {}
 
 template <typename T>
 LinkedList<T>::~LinkedList() {
@@ -23,55 +9,100 @@ LinkedList<T>::~LinkedList() {
 
 template <typename T>
 void LinkedList<T>::append(const T& elem) {
-    Node* n = new Node(elem);
-
+    Node* newNode = new Node(elem);  
     if (head == nullptr) {
-        head = n;
+        head = newNode;
     }
     else {
         Node* curr = head;
-
         while (curr->next != nullptr) {
             curr = curr->next;
         }
-
-        curr->next = n;
+        curr->next = newNode;
     }
-
     this->length++;
 }
 
 template <typename T>
 void LinkedList<T>::clear() {
-    Node* prev = nullptr;
-
     while (head != nullptr) {
-        prev = head;
+        Node* temp = head;
         head = head->next;
-        delete prev;
+        delete temp;
     }
-
-    this->length = 0;
+    this->length = 0;  
 }
-
 template <typename T>
 void LinkedList<T>::copy(const LinkedList<T>& copyObj) {
     // TODO
+    if (copyObj.head == nullptr){
+        return;
+        head = new Node(copyObj.head->value);
+        Node* curr = head;
+        Node* copyObjCurr = copyObj.head->next;
+        while(copyObjCurr != nullptr){
+            curr->next = new Node(copyObjCurr->value);
+            curr = curr->next;
+            copyObjCurr = copyObjCurr->next;
+        }
+       this->length = copyObj.length;
+    }
+   
 }
 
 template <typename T>
 T LinkedList<T>::getElement(int position) const {
     if (position < 0 || position >= this->length) {
-        throw string("getElement: error, position out of bounds");
+        throw string("Position is out of range.");  
     }
-    
     Node* curr = head;
-
     for (int i = 0; i < position; i++) {
         curr = curr->next;
     }
-
     return curr->value;
+}
+
+template <typename T>
+void LinkedList<T>::insert(int position, const T& elem) {
+    if (position < 0 || position > this->length) {  
+        throw string("Position is out of range.");   
+    }
+    Node* newNode = new Node(elem);
+    if (position == 0) {
+        newNode->next = head;
+        head = newNode;
+    }
+    else {
+        Node* curr = head;
+        for (int i = 0; i < position - 1; i++) {
+            curr = curr->next;
+        }
+        newNode->next = curr->next;
+        curr->next = newNode;
+    }
+    this->length++;  // FIXED: added this->
+}
+
+template <typename T>
+void LinkedList<T>::remove(int position) {
+    if (position < 0 || position >= this->length) {
+        throw string("Position is out of range.");  // FIXED: throw string
+    }
+    if (position == 0) {
+        Node* temp = head;
+        head = head->next;
+        delete temp;
+    }
+    else {
+        Node* curr = head;
+        for (int i = 0; i < position - 1; i++) {
+            curr = curr->next;
+        }
+        Node* temp = curr->next;
+        curr->next = temp->next;
+        delete temp;
+    }
+    this->length--;
 }
 
 template <typename T>
@@ -80,32 +111,19 @@ int LinkedList<T>::getLength() const {
 }
 
 template <typename T>
-void LinkedList<T>::insert(int position, const T& elem) {
-    // TODO
-}
-
-template <typename T>
 bool LinkedList<T>::isEmpty() const {
     return this->length == 0;
 }
 
 template <typename T>
-void LinkedList<T>::remove(int position) {
-    // TODO
-}
-
-template <typename T>
 void LinkedList<T>::replace(int position, const T& elem) {
     if (position < 0 || position >= this->length) {
-        throw string("replace: error, position out of bounds");
+        throw string("Position is out of range.");  // FIXED: throw string
     }
-
     Node* curr = head;
-
     for (int i = 0; i < position; i++) {
         curr = curr->next;
     }
-
     curr->value = elem;
 }
 
@@ -125,6 +143,6 @@ ostream& operator<<(ostream& outStream, const LinkedList<T>& myObj) {
         }
         outStream << endl;
     }
-
     return outStream;
 }
+
